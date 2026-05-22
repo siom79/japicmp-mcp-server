@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: japicmpweb-mcp-server
+  main:
+    banner-mode: "off"
+  ai:
+    mcp:
+      server:
+        name: japicmpweb-mcp
+        version: 1.0.0
+        type: SYNC
+        stdio: true
+
+logging:
+  config: classpath:logback-spring.xml
