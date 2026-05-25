@@ -45,7 +45,7 @@ jobs:
       - name: Commit SNAPSHOT version
         run: |
           git add pom.xml
-          git commit -m "prepare release ${{ github.event.inputs.version }}"
+          git diff --cached --quiet || git commit -m "prepare release ${{ github.event.inputs.version }}"
 
       - name: Release prepare and perform
         run: |
