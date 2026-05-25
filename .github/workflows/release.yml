@@ -39,6 +39,10 @@ jobs:
           NEXT=$(echo "${{ github.event.inputs.version }}" | awk -F. '{$NF=$NF+1; print}' OFS=.)
           echo "next=${NEXT}-SNAPSHOT" >> "$GITHUB_OUTPUT"
 
+      - name: Read current version
+        id: current
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> "$GITHUB_OUTPUT"
+
       - name: Set SNAPSHOT version
         run: mvn --batch-mode versions:set -DnewVersion=${{ github.event.inputs.version }}-SNAPSHOT -DgenerateBackupPoms=false
 
@@ -61,3 +65,14 @@ jobs:
           tag_name: v${{ github.event.inputs.version }}
           name: Release v${{ github.event.inputs.version }}
           files: target/checkout/target/japicmp-mcp-server-${{ github.event.inputs.version }}.jar
+
+      - name: Update version references in workspace
+        run: |
+          OLD="${{ steps.current.outputs.version }}"
+          NEW="${{ steps.versions.outputs.next }}"
+          find . -type f -not -path './.git/*' -not -path './target/*' \
+            | xargs grep -rl "$OLD" 2>/dev/null \
+            | xargs -r sed -i "s/${OLD}/${NEW}/g"
+          git add -A
+          git diff --cached --quiet || git commit -m "update version references to ${NEW}"
+          git push origin HEAD
