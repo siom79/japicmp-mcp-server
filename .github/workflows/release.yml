@@ -29,8 +29,8 @@ jobs:
 
       - name: Configure git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name '${{ github.actor }}'
+          git config user.email '${{ github.actor }}@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
       - name: Compute next development version
@@ -49,7 +49,7 @@ jobs:
 
       - name: Release prepare and perform
         run: |
-          mvn --batch-mode release:prepare release:perform \
+          mvn --batch-mode release:prepare \
             -DreleaseVersion=${{ github.event.inputs.version }} \
             -Dtag=v${{ github.event.inputs.version }} \
             -DdevelopmentVersion=${{ steps.versions.outputs.next }} \
