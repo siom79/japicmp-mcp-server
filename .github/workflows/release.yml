@@ -1,13 +1,10 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
-      tag:
-        description: 'Release tag (e.g. v1.0.0)'
+      version:
+        description: 'Release version (e.g. 0.0.2)'
         required: true
 
 jobs:
@@ -20,6 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 25
         uses: actions/setup-java@v4
@@ -28,21 +27,37 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
-
-      - name: Determine release tag
-        id: tag
+      - name: Configure git
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "value=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "value=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
-          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+      - name: Compute next development version
+        id: versions
+        run: |
+          NEXT=$(echo "${{ github.event.inputs.version }}" | awk -F. '{$NF=$NF+1; print}' OFS=.)
+          echo "next=${NEXT}-SNAPSHOT" >> "$GITHUB_OUTPUT"
+
+      - name: Set SNAPSHOT version
+        run: mvn --batch-mode versions:set -DnewVersion=${{ github.event.inputs.version }}-SNAPSHOT -DgenerateBackupPoms=false
+
+      - name: Commit SNAPSHOT version
+        run: |
+          git add pom.xml
+          git commit -m "prepare release ${{ github.event.inputs.version }}"
+
+      - name: Release prepare and perform
+        run: |
+          mvn --batch-mode release:prepare release:perform \
+            -DreleaseVersion=${{ github.event.inputs.version }} \
+            -Dtag=v${{ github.event.inputs.version }} \
+            -DdevelopmentVersion=${{ steps.versions.outputs.next }} \
+            -DlocalCheckout=true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.tag.outputs.value }}
-          name: Release ${{ steps.tag.outputs.value }}
-          files: target/*.jar
+          tag_name: v${{ github.event.inputs.version }}
+          name: Release v${{ github.event.inputs.version }}
+          files: target/checkout/target/japicmp-mcp-server-${{ github.event.inputs.version }}.jar
