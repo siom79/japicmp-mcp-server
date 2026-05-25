@@ -4,11 +4,12 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that e
 
 ## What it does
 
-The server provides a single tool, `compareJavaApi`, which:
+The server provides two tools:
 
-1. Downloads two JAR versions from Maven Central
-2. Runs a full japicmp comparison
-3. Returns a Markdown compatibility report with semver classification, a summary table, and detailed per-class breakdowns
+- **`compareJavaApi`** — downloads two JAR versions from Maven Central and compares their APIs
+- **`compareLocalJars`** — compares two local JAR files on disk
+
+Both run a full japicmp comparison and return a Markdown compatibility report with semver classification, a summary table, and detailed per-class breakdowns.
 
 ### Example
 
@@ -84,7 +85,7 @@ Add the server to your `.mcp.json`:
 }
 ```
 
-Then restart you CLI. The `compareJavaApi` tool will be available automatically.
+Then restart your CLI. Both tools will be available automatically.
 
 ## Tool reference
 
@@ -104,6 +105,36 @@ Compares two Maven artifacts for API compatibility using japicmp. Returns a Mark
 | `onlyBinaryIncompatible` | boolean | Only include binary-incompatible changes in the report |
 
 Both artifacts must be available on Maven Central.
+
+### `compareLocalJars`
+
+Compares two local JAR files for API compatibility using japicmp. Returns a Markdown report.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `oldJarPath` | string | Absolute path to the old JAR file |
+| `newJarPath` | string | Absolute path to the new JAR file |
+| `onlyModified` | boolean | Only include modified API elements in the report |
+| `onlyBinaryIncompatible` | boolean | Only include binary-incompatible changes in the report |
+
+Both paths must be absolute and point to readable `.jar` files.
+
+### Example
+
+> "Compare `/home/user/Downloads/japicmp-0.24.0.jar` with `/home/user/Downloads/japicmp-0.25.0.jar` using japicmp"
+
+```
+## Compatibility Report: japicmp 0.24.0 → 0.25.0
+
+Verdict: MAJOR (breaking changes)
+
+Breaking change in japicmp.compat.CompatibilityChanges:
+  Removed: CompatibilityChanges(JarArchiveComparator)
+  Added:   CompatibilityChanges(JarArchiveComparator, JarArchiveComparatorOptions)
+
+New method in japicmp.util.FileHelper (compatible):
+  Added: static public String guessVersion(File)
+```
 
 ## Technology stack
 

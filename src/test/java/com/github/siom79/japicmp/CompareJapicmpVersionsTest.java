@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  */
 class CompareJapicmpVersionsTest {
 
-    private static final Path JAR = Path.of("target/mcp-server-1.0-SNAPSHOT.jar");
+    private static final Path JAR = Path.of("target/japicmp-mcp-server-1.0-SNAPSHOT.jar");
 
     @Test
     void compareJapicmpVersions() {
@@ -59,6 +59,39 @@ class CompareJapicmpVersionsTest {
             assertThat(text)
                     .contains("Compatibility Report")
                     .contains("japicmp");
+        }
+    }
+
+    @Test
+    void compareLocalJars() {
+        assumeTrue(Files.exists(JAR), "JAR must exist — run: mvn package -DskipTests");
+
+        Path jar1 = Path.of("target/test-jars/japicmp-0.25.0.jar");
+        Path jar2 = Path.of("target/test-jars/japicmp-0.26.0.jar");
+
+        var transport = new StdioClientTransport(
+                ServerParameters.builder("java")
+                        .args("-jar", JAR.toAbsolutePath().toString())
+                        .build());
+
+        try (McpSyncClient client = McpClient.sync(transport)
+                .requestTimeout(Duration.ofSeconds(120))
+                .build()) {
+
+            client.initialize();
+
+            var result = client.callTool(new McpSchema.CallToolRequest(
+                    "compareLocalJars",
+                    Map.of(
+                            "oldJarPath", jar1.toAbsolutePath().toString(),
+                            "newJarPath", jar2.toAbsolutePath().toString(),
+                            "onlyModified", false,
+                            "onlyBinaryIncompatible", false
+                    )));
+
+            assertThat(result.isError()).isNotEqualTo(Boolean.TRUE);
+            String text = ((McpSchema.TextContent) result.content().getFirst()).text();
+            assertThat(text).contains("Compatibility Report");
         }
     }
 }

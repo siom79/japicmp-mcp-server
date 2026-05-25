@@ -17,6 +17,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +51,41 @@ public class JApiCmpToolService {
                 oldBytes, oldGroupId, oldArtifactId, oldVersion,
                 newBytes, newGroupId, newArtifactId, newVersion,
                 onlyModified, onlyBinaryIncompatible);
+    }
+
+    @Tool(description = "Compares two local JAR files for API compatibility using japicmp. Returns a Markdown report.")
+    public String compareLocalJars(
+            @ToolParam(description = "Absolute path to the old JAR file") String oldJarPath,
+            @ToolParam(description = "Absolute path to the new JAR file") String newJarPath,
+            @ToolParam(description = "Only show modified API elements (default: false)") boolean onlyModified,
+            @ToolParam(description = "Only show binary incompatible changes (default: false)") boolean onlyBinaryIncompatible) {
+
+        Path oldPath = validateJar(oldJarPath);
+        Path newPath = validateJar(newJarPath);
+
+        log.info("Comparing local JARs: {} vs {}", oldPath, newPath);
+
+        try {
+            byte[] oldBytes = Files.readAllBytes(oldPath);
+            byte[] newBytes = Files.readAllBytes(newPath);
+            String oldName = oldPath.getFileName().toString();
+            String newName = newPath.getFileName().toString();
+
+            return compare(
+                    oldBytes, "", oldName, oldName,
+                    newBytes, "", newName, newName,
+                    onlyModified, onlyBinaryIncompatible);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read JAR file: " + e.getMessage(), e);
+        }
+    }
+
+    private Path validateJar(String path) {
+        Path p = Path.of(path);
+        if (!p.isAbsolute()) throw new IllegalArgumentException("Path must be absolute: " + path);
+        if (!path.endsWith(".jar")) throw new IllegalArgumentException("File must have .jar extension: " + path);
+        if (!Files.isReadable(p)) throw new IllegalArgumentException("File not readable: " + path);
+        return p;
     }
 
     private byte[] downloadJar(String groupId, String artifactId, String version) {
