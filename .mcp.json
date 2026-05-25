@@ -2,7 +2,7 @@
   "mcpServers": {
     "japicmp": {
       "command": "java",
-      "args": ["-jar", "target/japicmp-mcp-server-1.0-SNAPSHOT.jar"]
+      "args": ["-jar", "target/japicmp-mcp-server-0.0.2-SNAPSHOT.jar"]
     }
   }
 }

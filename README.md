@@ -68,7 +68,7 @@ The report identifies that `JApiCmpArchive.getFile()`, `getBytes()`, and `getNam
 mvn package
 ```
 
-This produces `target/mcp-server-1.0-SNAPSHOT.jar`.
+This produces `target/japicmp-mcp-server-0.0.2-SNAPSHOT.jar`.
 
 ## Integration with Claude
 
@@ -79,7 +79,7 @@ Add the server to your `.mcp.json`:
   "mcpServers": {
     "japicmp": {
       "command": "java",
-      "args": ["-jar", "/path/to/mcp-server-1.0-SNAPSHOT.jar"]
+      "args": ["-jar", "/path/to/japicmp-mcp-server-0.0.2-SNAPSHOT.jar"]
     }
   }
 }
