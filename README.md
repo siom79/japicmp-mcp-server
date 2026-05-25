@@ -60,9 +60,18 @@ The report identifies that `JApiCmpArchive.getFile()`, `getBytes()`, and `getNam
 ## Prerequisites
 
 - Java 25+
-- Maven 3.9+
+
+## Download
+
+You can download the latest release [here](https://github.com/siom79/japicmp-mcp-server/releases).
 
 ## Build
+
+### Prerequisites:
+
+- Maven 3.9+
+
+### Build command
 
 ```bash
 mvn package
