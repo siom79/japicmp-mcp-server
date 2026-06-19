@@ -77,7 +77,7 @@ You can download the latest release [here](https://github.com/siom79/japicmp-mcp
 mvn package
 ```
 
-This produces `target/japicmp-mcp-server-0.0.3-SNAPSHOT.jar`.
+This produces `target/japicmp-mcp-server-0.0.4-SNAPSHOT.jar`.
 
 ## Integration with Claude
 
@@ -88,7 +88,7 @@ Add the server to your `.mcp.json`:
   "mcpServers": {
     "japicmp": {
       "command": "java",
-      "args": ["-jar", "/path/to/japicmp-mcp-server-0.0.3-SNAPSHOT.jar"]
+      "args": ["-jar", "/path/to/japicmp-mcp-server-0.0.4-SNAPSHOT.jar"]
     }
   }
 }
