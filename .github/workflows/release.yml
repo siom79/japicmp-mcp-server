@@ -58,6 +58,8 @@ jobs:
             -Dtag=v${{ github.event.inputs.version }} \
             -DdevelopmentVersion=${{ steps.versions.outputs.next }} \
             -DlocalCheckout=true
+          mvn --batch-mode release:perform \
+            -DlocalCheckout=true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
