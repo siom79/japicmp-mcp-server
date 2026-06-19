@@ -11,7 +11,7 @@
 
   <groupId>com.github.siom79.japicmp</groupId>
   <artifactId>japicmp-mcp-server</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.3</version>
 
   <name>japicmp-mcp-server</name>
 
@@ -19,7 +19,7 @@
     <connection>scm:git:https://github.com/siom79/japicmp-mcp-server.git</connection>
     <developerConnection>scm:git:https://github.com/siom79/japicmp-mcp-server.git</developerConnection>
     <url>https://github.com/siom79/japicmp-mcp-server</url>
-    <tag>HEAD</tag>
+    <tag>v0.0.3</tag>
   </scm>
 
   <properties>
